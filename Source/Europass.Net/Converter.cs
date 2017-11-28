@@ -70,7 +70,7 @@ namespace Europass.Net
                 OmitXmlDeclaration = false
             };
 
-            using (var stringWriter = new StringWriter())
+            using (var stringWriter = new StringWriterWithEncoding(Encoding.UTF8))
             using (var xmlTextWriter = XmlWriter.Create(stringWriter,settings))
             {
                 xml.WriteTo(xmlTextWriter);

@@ -17,14 +17,13 @@ namespace Europass.Net.Test
             {
                 try
                 {
-                    Console.WriteLine($"Reading file: {path}");
-
-                    Europass.Net.Model.SkillsPassport cv = null;
                     var file = new FileInfo(path);
 
                     //Ignore test files
                     if (file.Name.Contains("Test")) continue;
-                    
+
+                    Console.WriteLine($"Reading file: {path}");
+                    Europass.Net.Model.SkillsPassport cv = null;
                     switch (file.Extension.ToLowerInvariant())
                     {
                         case ".xml":
