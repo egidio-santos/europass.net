@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 namespace Europass.Net.Test
 {
@@ -7,13 +8,57 @@ namespace Europass.Net.Test
     {
         static void Main(string[] args)
         {
-            var cv = Europass.Net.Converter.ReadXml(@"C:\GitHub\CV-Europass-20171127-LuísRodriguesDosSantosFilho-EN.xml");
-            var pdf = Europass.Net.Converter.ReadPdf(@"C:\GitHub\CV-Europass-20171126-LuísRodriguesDosSantosFilho-EN.pdf");
-            
-            File.WriteAllText(@"C:\GitHub\CV-Europass-20171126-LuísRodriguesDosSantosFilho-EN.json", Europass.Net.Converter.ToJson(cv, true));
+            //Reach the samples folder
+            var lookupFolder = @"..\..\Doc\Samples\";
+            var samples = Directory.GetFiles(lookupFolder, "*.xml").ToList();
+            samples.AddRange(Directory.GetFiles(lookupFolder, "*.pdf"));
 
-            Console.WriteLine(cv.LearnerInfo.Identification.PersonName.FirstName);
-            Console.WriteLine(pdf.LearnerInfo.Identification.PersonName.FirstName);
+            foreach (var path in samples)
+            {
+                try
+                {
+                    Console.WriteLine($"Reading file: {path}");
+
+                    Europass.Net.Model.SkillsPassport cv = null;
+                    var file = new FileInfo(path);
+
+                    //Ignore test files
+                    if (file.Name.Contains("Test")) continue;
+                    
+                    switch (file.Extension.ToLowerInvariant())
+                    {
+                        case ".xml":
+                            cv = Europass.Net.Converter.ReadXml(path);
+                            break;
+                        case ".pdf":
+                            cv = Europass.Net.Converter.ReadPdf(path);
+                            break;
+                        default:
+                            throw new InvalidOperationException("Invalid file type");
+                            break;
+                    }
+
+                    //Strip file extension
+                    var fileName = $"{lookupFolder}{file.Name.Replace(".", "-")}";
+
+                    //Testing XML writing
+                    File.WriteAllText($"{fileName}-Test.xml",
+                        Europass.Net.Converter.ToXmlString(cv));
+
+                    //Testing Json Convertion
+                    File.WriteAllText($"{fileName}-Test.json", 
+                        Europass.Net.Converter.ToJson(cv, true));
+                    File.WriteAllText($"{fileName}-NoBinaries-Test.json",
+                        Europass.Net.Converter.ToJson(cv));
+
+                    //Testing PDF Generation
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+
             Console.ReadKey();
         }
     }

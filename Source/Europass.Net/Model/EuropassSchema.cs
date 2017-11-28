@@ -1108,6 +1108,51 @@ namespace Europass.Net.Model
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://europass.cedefop.europa.eu/Europass")]
     public partial class DateType
     {
+        private string yearField;
+
+        private string monthField;
+
+        private string dayField;
+
+
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string year
+        {
+            get
+            {
+                return this.yearField;
+            }
+            set
+            {
+                this.yearField = value;
+            }
+        }
+
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string month
+        {
+            get
+            {
+                return this.monthField;
+            }
+            set
+            {
+                this.monthField = value;
+            }
+        }
+
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string day
+        {
+            get
+            {
+                return this.dayField;
+            }
+            set
+            {
+                this.dayField = value;
+            }
+        }
     }
 
 
@@ -1999,6 +2044,7 @@ namespace Europass.Net.Model
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://europass.cedefop.europa.eu/Europass")]
     public partial class EducationalExperienceType : ExperienceType
     {
+        private PeriodType periodField;
 
         private string titleField;
 
@@ -2010,6 +2056,17 @@ namespace Europass.Net.Model
 
         private EducationalFieldType fieldField;
 
+        public PeriodType Period
+        {
+            get
+            {
+                return this.periodField;
+            }
+            set
+            {
+                this.periodField = value;
+            }
+        }
 
         public string Title
         {
@@ -2084,6 +2141,7 @@ namespace Europass.Net.Model
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://europass.cedefop.europa.eu/Europass")]
     public partial class WorkExperienceType : ExperienceType
     {
+        private PeriodType periodField;
 
         private OccupationalFieldType positionField;
 
@@ -2091,6 +2149,18 @@ namespace Europass.Net.Model
 
         private EmployerType employerField;
 
+
+        public PeriodType Period
+        {
+            get
+            {
+                return this.periodField;
+            }
+            set
+            {
+                this.periodField = value;
+            }
+        }
 
         public OccupationalFieldType Position
         {

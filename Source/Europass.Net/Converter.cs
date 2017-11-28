@@ -4,7 +4,11 @@ using iTextSharp.text.pdf;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
+using System.Xml.XPath;
 
 namespace Europass.Net
 {
@@ -13,6 +17,7 @@ namespace Europass.Net
     /// </summary>
     public static class Converter
     {
+        #region XML Functions
         /// <summary>
         /// Reads the XML.
         /// </summary>
@@ -33,14 +38,49 @@ namespace Europass.Net
         /// <returns></returns>
         public static Model.SkillsPassport ReadXml(Stream stream)
         {
-            Model.SkillsPassport ret = null;
-
-            XmlSerializer serializer = new XmlSerializer(typeof(Model.SkillsPassport));
-            ret = (Model.SkillsPassport)serializer.Deserialize(stream);
-
-            return ret;
+            try
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(Model.SkillsPassport));
+                return (Model.SkillsPassport)serializer.Deserialize(stream);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Could not convert the XML Data, check inner exception for more information.", e);
+            }
         }
 
+        /// <summary>
+        /// To the XML string.
+        /// </summary>
+        /// <param name="cv">The cv.</param>
+        /// <returns></returns>
+        public static string ToXmlString(Model.SkillsPassport cv)
+        {
+            XmlDocument xml = new XmlDocument();
+            
+            using (XmlWriter writer = xml.CreateNavigator().AppendChild())
+            {
+                new XmlSerializer(cv.GetType()).Serialize(writer, cv);
+            }
+
+            var settings = new XmlWriterSettings
+            {
+                Encoding = new UnicodeEncoding(false,false),
+                Indent = true,
+                OmitXmlDeclaration = false
+            };
+
+            using (var stringWriter = new StringWriter())
+            using (var xmlTextWriter = XmlWriter.Create(stringWriter,settings))
+            {
+                xml.WriteTo(xmlTextWriter);
+                xmlTextWriter.Flush();
+                return stringWriter.GetStringBuilder().ToString();
+            }
+        }
+        #endregion
+
+        #region Json Functions
         /// <summary>
         /// To the json.
         /// </summary>
@@ -61,7 +101,9 @@ namespace Europass.Net
 
             return Newtonsoft.Json.JsonConvert.SerializeObject(toSerialize);
         }
+        #endregion
 
+        #region PDF Functions
         /// <summary>
         /// Reads the PDF.
         /// </summary>
@@ -86,6 +128,7 @@ namespace Europass.Net
             {
                 var files = new List<byte[]>();
                 var reader = new iTextSharp.text.pdf.PdfReader(pdfStream);
+
                 var root = reader.Catalog;
                 var embeddedFiles = root.GetAsDict(PdfName.NAMES)?
                     .GetAsDict(PdfName.EMBEDDEDFILES)?.GetAsArray(PdfName.NAMES); //may be null
@@ -111,9 +154,9 @@ namespace Europass.Net
             }
             catch (Exception e)
             {
-                //TODO: Lookup exception and maybe translate the error?
-                throw;
+                throw new InvalidOperationException("Could not read the XML attachments, please check if the file was exported correctly.", e);
             }
         }
+        #endregion
     }
 }

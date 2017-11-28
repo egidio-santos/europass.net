@@ -32,14 +32,17 @@ namespace Europass.Net.Helpers
                 return default(T);
             }
 
-            IFormatter formatter = new BinaryFormatter();
-            Stream stream = new MemoryStream();
-            using (stream)
-            {
-                formatter.Serialize(stream, source);
-                stream.Seek(0, SeekOrigin.Begin);
-                return (T)formatter.Deserialize(stream);
-            }
+            ////Since binary serialization might require extra configuration,
+            //// i'll have less worries if i just use Json here
+            //using (Stream stream = new MemoryStream())
+            //{
+            //    IFormatter formatter = new BinaryFormatter();
+            //    formatter.Serialize(stream, source);
+            //    stream.Seek(0, SeekOrigin.Begin);
+            //    return (T)formatter.Deserialize(stream);
+            //}
+
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(Newtonsoft.Json.JsonConvert.SerializeObject(source));
         }
     }
 }
