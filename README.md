@@ -25,10 +25,9 @@ The core library has the following dependencies. More will be added later for ot
 
 ### Todos
 
- - Fix missing fields on the generated Model
- - Implement local Html Editor (Fix some bugs of the original web editor)
  - Implement REST Api for Online PDF Generation
  - Write MORE Tests
+ - Implement local Html Editor **Will be a separate project** (Fix some bugs of the original web editor) 
 
 License
 ----
