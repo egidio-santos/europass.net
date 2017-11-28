@@ -1,10 +1,13 @@
 # Europass.Net
+
 **!!!THIS IS A PRE-ALPHA VERSION USE AT YOUR OWN RISK!!!**
+
 Europass.Net is a simple C#/.Net implementation of the Europass CV Layout.
 
-You can use this to:
-  - Read/write Europass XML Files
+You can use this library to:
+  - Read/Write Europass XML Files
   - Extract XML Info from exported PDF Files
+  - Generate a PDF based on the standard layout **(Requires Internet Connection)**
 
 ### Tech
 
@@ -22,6 +25,7 @@ The core library has the following dependencies. More will be added later for ot
 
 ### Todos
 
+ - Fix missing fields on the generated Model
  - Implement local Html Editor (Fix some bugs of the original web editor)
  - Implement REST Api for Online PDF Generation
  - Write MORE Tests
