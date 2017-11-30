@@ -4,6 +4,8 @@ using iTextSharp.text.pdf;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -57,7 +59,7 @@ namespace Europass.Net
         public static string ToXmlString(Model.SkillsPassport cv)
         {
             XmlDocument xml = new XmlDocument();
-            
+
             using (XmlWriter writer = xml.CreateNavigator().AppendChild())
             {
                 new XmlSerializer(cv.GetType()).Serialize(writer, cv);
@@ -65,13 +67,13 @@ namespace Europass.Net
 
             var settings = new XmlWriterSettings
             {
-                Encoding = new UnicodeEncoding(false,false),
+                Encoding = new UnicodeEncoding(false, false),
                 Indent = true,
                 OmitXmlDeclaration = false
             };
 
             using (var stringWriter = new StringWriterWithEncoding(Encoding.UTF8))
-            using (var xmlTextWriter = XmlWriter.Create(stringWriter,settings))
+            using (var xmlTextWriter = XmlWriter.Create(stringWriter, settings))
             {
                 xml.WriteTo(xmlTextWriter);
                 xmlTextWriter.Flush();
@@ -156,6 +158,67 @@ namespace Europass.Net
             {
                 throw new InvalidOperationException("Could not read the XML attachments, please check if the file was exported correctly.", e);
             }
+        }
+
+        /// <summary>
+        /// Generates the PDF.
+        /// </summary>
+        /// <param name="cv">The cv.</param>
+        /// <returns></returns>
+        public static MemoryStream GeneratePDF(Model.SkillsPassport cv)
+        {
+            try
+            {
+                var request = (HttpWebRequest)WebRequest.Create("https://europass.cedefop.europa.eu/rest/v1/document/to/pdf");
+
+                var data = Encoding.UTF8.GetBytes(Converter.ToXmlString(cv));
+                request.Method = "POST";
+                request.ContentType = "application/xml";
+                request.ContentLength = data.Length;
+                request.Headers.Add("Accept-Language", cv.locale);
+
+                using (var stream = request.GetRequestStream())
+                {
+                    stream.Write(data, 0, data.Length);
+                }
+
+                using (var response = (HttpWebResponse)request.GetResponse())
+                {
+                    MemoryStream memStream;
+                    using (Stream responseStream = response.GetResponseStream())
+                    {
+                        memStream = new MemoryStream();
+
+                        byte[] buffer = new byte[1024];
+                        int byteCount;
+                        do
+                        {
+                            byteCount = responseStream.Read(buffer, 0, buffer.Length);
+                            memStream.Write(buffer, 0, byteCount);
+                        } while (byteCount > 0);
+                    }
+
+                    memStream.Seek(0, SeekOrigin.Begin);
+                    return memStream;
+                }
+            }
+            catch (WebException ex)
+            {
+                using (var stream = ex.Response.GetResponseStream())
+                using (var reader = new StreamReader(stream))
+                {
+                    Console.WriteLine(reader.ReadToEnd());
+                }
+            }
+            catch (Exception ex)
+            {
+                // Something more serious happened
+                // like for example you don't have network access
+                // we cannot talk about a server exception here as
+                // the server probably was never reached
+            }
+
+            return new MemoryStream();
         }
         #endregion
     }

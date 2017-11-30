@@ -45,12 +45,16 @@ namespace Europass.Net.Test
                         Europass.Net.Converter.ToXmlString(cv));
 
                     //Testing Json Convertion
-                    File.WriteAllText($"{fileName}-Test.json", 
+                    File.WriteAllText($"{fileName}-Test.json",
                         Europass.Net.Converter.ToJson(cv, true));
                     File.WriteAllText($"{fileName}-NoBinaries-Test.json",
                         Europass.Net.Converter.ToJson(cv));
 
                     //Testing PDF Generation
+                    using (var fileStream = File.Create($"{fileName}-Test.pdf"))
+                    {
+                        Converter.GeneratePDF(cv).CopyTo(fileStream);
+                    }
                 }
                 catch (Exception e)
                 {
